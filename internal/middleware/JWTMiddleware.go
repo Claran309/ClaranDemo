@@ -1,16 +1,26 @@
 package middleware
 
 import (
+	"GoGin/internal/util"
+	"GoGin/internal/util/jwt_util"
 	"errors"
 	"strings"
-
-	"GoGin/util"
 
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt/v5"
 )
 
-func JWTAuthorizationMiddleware() gin.HandlerFunc {
+type JWTMiddleware struct {
+	jwtUtil jwt_util.Util
+}
+
+func NewJWTMiddleware(jwtUtil jwt_util.Util) *JWTMiddleware {
+	return &JWTMiddleware{
+		jwtUtil: jwtUtil,
+	}
+}
+
+func (m *JWTMiddleware) JWTAuthorizationMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authorizationHeader := c.GetHeader("Authorization")
 		if authorizationHeader == "" {
@@ -28,7 +38,7 @@ func JWTAuthorizationMiddleware() gin.HandlerFunc {
 
 		tokenString := parts[1]
 
-		token, err := util.ValidateToken(tokenString)
+		token, err := m.jwtUtil.ValidateToken(tokenString)
 		if err != nil {
 			if errors.Is(err, jwt.ErrTokenExpired) {
 				util.Error(c, 401, "Token is expired")
@@ -40,7 +50,7 @@ func JWTAuthorizationMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		claims, err := util.ExtractClaims(token)
+		claims, err := m.jwtUtil.ExtractClaims(token)
 		if err != nil {
 			util.Error(c, 500, "Failed to extract claims")
 			c.Abort()

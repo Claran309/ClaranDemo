@@ -1,42 +1,35 @@
 package handlers
 
 import (
-	"GoGin/dao"
-	"GoGin/services"
-	"GoGin/util"
+	"GoGin/internal/model"
+	"GoGin/internal/services"
+	"GoGin/internal/util"
 
 	"github.com/gin-gonic/gin"
 
 	"net/http"
 )
 
-// RegisterRequest 注册请求
-type RegisterRequest struct {
-	Username string `json:"username" binding:"required"`
-	Password string `json:"password" binding:"required"`
-	Email    string `json:"email" binding:"required"`
+type UserHandler struct {
+	userService *services.UserService
 }
 
-// LoginRequest 登录请求
-type LoginRequest struct {
-	LoginKey string `json:"loginKey" binding:"required"`
-	Password string `json:"password" binding:"required"`
+func NewUserHandler(userService *services.UserService) *UserHandler {
+	return &UserHandler{
+		userService: userService,
+	}
 }
 
-func Register(c *gin.Context) {
-	//并发安全
-	dao.DataSync.Lock()
-	defer dao.DataSync.Unlock()
-
+func (h *UserHandler) Register(c *gin.Context) {
 	//捕获数据
-	var req RegisterRequest
+	var req model.RegisterRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		util.Error(c, 400, err.Error())
 		return
 	}
 
 	//调用服务层
-	user, err := services.Register(req.Username, req.Password, req.Email)
+	user, err := h.userService.Register(&req)
 	if err != nil {
 		util.Error(c, 500, err.Error())
 		return
@@ -50,13 +43,9 @@ func Register(c *gin.Context) {
 	}, "RegisterRequest registered successfully")
 }
 
-func Login(c *gin.Context) {
-	//并发安全
-	dao.DataSync.Lock()
-	defer dao.DataSync.Unlock()
-
+func (h *UserHandler) Login(c *gin.Context) {
 	//捕获数据
-	var req LoginRequest
+	var req model.LoginRequest
 	if err := c.ShouldBindJSON(&req); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"status": http.StatusBadRequest,
@@ -66,7 +55,7 @@ func Login(c *gin.Context) {
 	}
 
 	//调用服务层
-	token, user, err := services.Login(req.LoginKey, req.Password)
+	token, user, err := h.userService.Login(req.LoginKey, req.Password)
 	if err != nil {
 		util.Error(c, 500, err.Error())
 	}
@@ -80,7 +69,7 @@ func Login(c *gin.Context) {
 	}, "login successful")
 }
 
-func InfoHandler(c *gin.Context) {
+func (h *UserHandler) InfoHandler(c *gin.Context) {
 	//捕获数据
 	userID, _ := c.Get("user_id")
 	username, _ := c.Get("username")

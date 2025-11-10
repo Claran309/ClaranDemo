@@ -1,0 +1,12 @@
+package repository
+
+import (
+	"GoGin/internal/model"
+)
+
+type UserRepository interface {
+	AddUser(user *model.User) error
+	SelectByUsername(username string) (*model.User, error)
+	SelectByEmail(email string) (*model.User, error)
+	Exists(username, email string) bool
+}

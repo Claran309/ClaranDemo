@@ -1,29 +1,36 @@
-package util
+package jwt_util
 
 import (
+	"GoGin/internal/model"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-
-	"GoGin/model"
 )
 
-func GenerateToken(userID string, username string) (string, error) {
-	jwtConfig := model.DefaultJWTConfig
+type defaultJWTUtil struct {
+	config model.Config
+}
 
+func NewJWTUtil() Util {
+	return &defaultJWTUtil{
+		config: model.DefaultJWTConfig,
+	}
+}
+
+func (util *defaultJWTUtil) GenerateToken(userID string, username string) (string, error) {
 	claims := jwt.MapClaims{
 		"username": username,
 		"user_id":  userID,
-		"iss":      jwtConfig.Issuer,
+		"iss":      util.config.Issuer,
 		"sub":      userID,
 		"iat":      time.Now().Unix(),
 		"nbf":      time.Now().Unix(),
-		"exp":      time.Now().Add(jwtConfig.ExpirationTime).Unix(),
+		"exp":      time.Now().Add(util.config.ExpirationTime).Unix(),
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 
-	tokenString, err := token.SignedString([]byte(jwtConfig.SecretKey))
+	tokenString, err := token.SignedString([]byte(util.config.SecretKey))
 	if err != nil {
 		return "", err
 	}
@@ -31,13 +38,13 @@ func GenerateToken(userID string, username string) (string, error) {
 	return tokenString, nil
 }
 
-func ValidateToken(tokenString string) (*jwt.Token, error) {
+func (util *defaultJWTUtil) ValidateToken(tokenString string) (*jwt.Token, error) {
 	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
 		if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 			return nil, jwt.ErrSignatureInvalid
 		}
 
-		return []byte(model.DefaultJWTConfig.SecretKey), nil
+		return []byte(util.config.SecretKey), nil
 	})
 
 	if err != nil {
@@ -47,7 +54,7 @@ func ValidateToken(tokenString string) (*jwt.Token, error) {
 	return token, nil
 }
 
-func ExtractClaims(token *jwt.Token) (jwt.MapClaims, error) {
+func (util *defaultJWTUtil) ExtractClaims(token *jwt.Token) (jwt.MapClaims, error) {
 	if claims, ok := token.Claims.(jwt.MapClaims); ok && token.Valid {
 		return claims, nil
 	} else {
