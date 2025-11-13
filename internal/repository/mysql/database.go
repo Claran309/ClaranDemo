@@ -9,7 +9,7 @@ import (
 )
 
 func InitMysql() (*gorm.DB, error) {
-	dsn := "claran:chr070309@tcp(localhost:3306)/Demo_logging_and_registering?charset=utf8&parseTime=True&loc=Local)"
+	dsn := "claran:chr070309@tcp(localhost:3306)/Demo_logging_and_registering?charset=utf8mb4&parseTime=True&loc=Local"
 
 	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{})
 	if err != nil {
