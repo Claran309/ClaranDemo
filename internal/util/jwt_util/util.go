@@ -17,7 +17,7 @@ func NewJWTUtil() Util {
 	}
 }
 
-func (util *defaultJWTUtil) GenerateToken(userID string, username string) (string, error) {
+func (util *defaultJWTUtil) GenerateToken(userID int, username string) (string, error) {
 	claims := jwt.MapClaims{
 		"username": username,
 		"user_id":  userID,

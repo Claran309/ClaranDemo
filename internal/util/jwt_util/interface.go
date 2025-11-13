@@ -5,7 +5,7 @@ import (
 )
 
 type Util interface {
-	GenerateToken(userID, username string) (string, error)
+	GenerateToken(userID int, username string) (string, error)
 	ValidateToken(tokenString string) (*jwt.Token, error)
 	ExtractClaims(token *jwt.Token) (jwt.MapClaims, error)
 }

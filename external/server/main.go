@@ -3,9 +3,10 @@ package main
 import (
 	"GoGin/internal/api/handlers"
 	"GoGin/internal/middleware"
-	"GoGin/internal/repository/memory"
+	"GoGin/internal/repository/mysql"
 	"GoGin/internal/services"
 	"GoGin/internal/util/jwt_util"
+	"log"
 
 	"github.com/gin-gonic/gin"
 )
@@ -13,7 +14,12 @@ import (
 func main() {
 	// 初始化依赖
 	// 数据层依赖
-	userRepo := memory.NewMemoryUserRepository()
+	// userRepo := memory.NewMemoryUserRepository() 内存记忆储存信息
+	db, err := mysql.InitMysql()
+	if err != nil {
+		log.Fatal(err)
+	}
+	userRepo := mysql.NewMysqlUserRepo(db)
 	// JWT工具
 	jwtUtil := jwt_util.NewJWTUtil()
 	// 业务逻辑层依赖
@@ -37,7 +43,7 @@ func main() {
 		protected.GET("/info", userHandler.InfoHandler)
 	}
 
-	err := r.Run()
+	err = r.Run()
 	if err != nil {
 		panic("Failed to start Gin server: " + err.Error())
 	}

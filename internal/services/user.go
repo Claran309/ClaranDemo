@@ -5,11 +5,8 @@ import (
 	"GoGin/internal/repository"
 	"GoGin/internal/util/jwt_util"
 	"errors"
-	"strconv"
 	"strings"
 )
-
-var IDCounter = 0
 
 type UserService struct {
 	UserRepo repository.UserRepository
@@ -45,7 +42,6 @@ func (s *UserService) Register(req *model.RegisterRequest) (*model.User, error) 
 		Username: req.Username,
 		Password: req.Password,
 		Email:    req.Email,
-		UserID:   GenerateUserID(),
 	}
 
 	//传入数据库
@@ -99,9 +95,4 @@ func (s *UserService) Login(loginKey, password string) (string, *model.User, err
 	}
 
 	return token, user, nil
-}
-
-func GenerateUserID() string {
-	IDCounter++
-	return strconv.Itoa(IDCounter)
 }
