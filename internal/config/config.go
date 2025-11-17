@@ -24,10 +24,10 @@ func LoadConfig() *Config {
 		log.Fatal("error loading .env file")
 	}
 	return &Config{
-		JWTSecret:      os.Getenv("JWT_SECRET"),
-		JWTIssuer:      os.Getenv("JWT_ISSUER"),
+		JWTSecret:      getEnv("JWT_SECRET", ""),
+		JWTIssuer:      getEnv("JWT_ISSUER", ""),
 		JWTExpireHours: getEnvInt("JWT_EXPIRATION_HOURS", 24),
-		DSN:            os.Getenv("DSN"),
+		DSN:            getEnv("DSN", ""),
 	}
 }
 
