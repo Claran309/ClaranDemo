@@ -42,6 +42,7 @@ func (s *UserService) Register(req *model.RegisterRequest) (*model.User, error) 
 		Username: req.Username,
 		Password: req.Password,
 		Email:    req.Email,
+		Role:     req.Role,
 	}
 
 	//传入数据库
@@ -52,7 +53,7 @@ func (s *UserService) Register(req *model.RegisterRequest) (*model.User, error) 
 	return user, nil
 }
 
-func (s *UserService) Login(loginKey, password string) (string, *model.User, error) {
+func (s *UserService) Login(loginKey, password string) (string, *model.User, error, string) {
 	//判断是邮箱登录还是用户名登录
 	var user *model.User
 	var at, point bool
@@ -67,32 +68,61 @@ func (s *UserService) Login(loginKey, password string) (string, *model.User, err
 	if at && point { // 邮箱登录
 		userByEmail, err := s.UserRepo.SelectByEmail(loginKey)
 		if err != nil {
-			return "", nil, err
+			return "", nil, err, ""
 		}
 		user = userByEmail
 	} else { // 用户名登录
 		userByUsername, err := s.UserRepo.SelectByUsername(loginKey)
 		if err != nil {
-			return "", nil, err
+			return "", nil, err, ""
 		}
 		user = userByUsername
 	}
 
 	//检查用户是否存在
 	if flag := s.UserRepo.Exists(user.Username, user.Email); !flag {
-		return "", nil, errors.New("username Not Exist")
+		return "", nil, errors.New("username Not Exist"), ""
 	}
 
 	//检验密码正确性
 	if password != user.Password {
-		return "", nil, errors.New("password error")
+		return "", nil, errors.New("password error"), ""
 	}
 
-	//返回token
-	token, err := s.jwtUtil.GenerateToken(user.UserID, user.Username)
+	//鉴权
+	role, err := s.UserRepo.GetRole(user)
 	if err != nil {
-		return "", nil, errors.New("token Error")
+		return "", nil, errors.New("get role error"), ""
 	}
 
-	return token, user, nil
+	//access token
+	token, err := s.jwtUtil.GenerateToken(user.UserID, user.Username, role, 1)
+	//refresh token
+	refreshToken, err := s.jwtUtil.GenerateToken(user.UserID, user.Username, role, 255)
+	if err != nil {
+		return "", nil, errors.New("token Error"), ""
+	}
+
+	return token, user, nil, refreshToken
+}
+
+func (s *UserService) Refresh(refreshToken model.RefreshTokenRequest) (string, error) {
+	//验证token
+	token, err := s.jwtUtil.ValidateToken(refreshToken.RefreshToken)
+	if err != nil {
+		return "", errors.New("refresh Token Error")
+	}
+
+	//提取声明
+	claims, err := s.jwtUtil.ExtractClaims(token)
+	if err != nil {
+		return "", errors.New("extract claims failed")
+	}
+
+	newToken, err := s.jwtUtil.GenerateToken(claims["user_id"].(int), claims["username"].(string), claims["role"].(string), 1)
+	if err != nil {
+		return "", errors.New("token generate failed")
+	}
+
+	return newToken, nil
 }

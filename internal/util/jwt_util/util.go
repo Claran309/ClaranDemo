@@ -22,15 +22,16 @@ func NewJWTUtil(config *config.Config) Util {
 	}
 }
 
-func (util *defaultJWTUtil) GenerateToken(userID int, username string) (string, error) {
+func (util *defaultJWTUtil) GenerateToken(userID int, username string, role string, extraExpiration int64) (string, error) {
 	claims := jwt.MapClaims{
+		"role":     role,
 		"username": username,
 		"user_id":  userID,
 		"iss":      util.config.Issuer,
 		"sub":      userID,
 		"iat":      time.Now().Unix(),
 		"nbf":      time.Now().Unix(),
-		"exp":      time.Now().Add(util.config.ExpirationTime).Unix(),
+		"exp":      time.Now().Add(util.config.ExpirationTime).Unix() * extraExpiration,
 	}
 
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)

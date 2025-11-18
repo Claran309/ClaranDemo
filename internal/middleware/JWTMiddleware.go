@@ -20,18 +20,19 @@ func NewJWTMiddleware(jwtUtil jwt_util.Util) *JWTMiddleware {
 	}
 }
 
-func (m *JWTMiddleware) JWTAuthorizationMiddleware() gin.HandlerFunc {
+// JWTAuthentication 进行jwt认证
+func (m *JWTMiddleware) JWTAuthentication() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		authorizationHeader := c.GetHeader("Authorization")
 		if authorizationHeader == "" {
-			util.Error(c, 401, "Authorization header is empty")
+			util.Error(c, 401, "未登录！") // 未登录
 			c.Abort()
 			return
 		}
 
 		parts := strings.SplitN(authorizationHeader, " ", 2)
-		if len(parts) != 2 && parts[0] != "Bearer" {
-			util.Error(c, 401, "Authorization header is invalid")
+		if len(parts) != 2 || parts[0] != "Bearer" {
+			util.Error(c, 401, "未登录！")
 			c.Abort()
 			return
 		}
@@ -59,7 +60,20 @@ func (m *JWTMiddleware) JWTAuthorizationMiddleware() gin.HandlerFunc {
 
 		c.Set("username", claims["username"])
 		c.Set("user_id", claims["user_id"])
+		c.Set("role", claims["role"])
+		c.Next()
+	}
+}
 
+// JWTAuthorization 鉴权
+func (m *JWTMiddleware) JWTAuthorization() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		role, _ := c.Get("role")
+		if role != "admin" {
+			util.Error(c, 403, "无权限！")
+			c.Abort()
+			return
+		}
 		c.Next()
 	}
 }

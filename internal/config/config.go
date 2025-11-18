@@ -27,7 +27,7 @@ func LoadConfig() *Config {
 		JWTSecret:      getEnv("JWT_SECRET", ""),
 		JWTIssuer:      getEnv("JWT_ISSUER", ""),
 		JWTExpireHours: getEnvInt("JWT_EXPIRATION_HOURS", 24),
-		DSN:            getEnv("DSN", ""),
+		DSN:            getEnv("DB_DSN", ""),
 	}
 }
 

@@ -76,3 +76,7 @@ func (repo *mysqlUserRepo) Exists(username, email string) bool {
 	repo.db.Where("username = ? AND email = ?", username, email).Count(&count)
 	return count > 0
 }
+
+func (repo *mysqlUserRepo) GetRole(user *model.User) (string, error) {
+	return user.Username, nil
+}
