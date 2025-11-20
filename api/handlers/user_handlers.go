@@ -1,8 +1,8 @@
 package handlers
 
 import (
+	"GoGin/api/services"
 	"GoGin/internal/model"
-	"GoGin/internal/services"
 	"GoGin/internal/util"
 
 	"github.com/gin-gonic/gin"

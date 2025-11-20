@@ -1,11 +1,11 @@
 package main
 
 import (
-	"GoGin/internal/api/handlers"
+	handlers2 "GoGin/api/handlers"
+	"GoGin/api/repository/mysql"
+	"GoGin/api/services"
 	"GoGin/internal/config"
 	"GoGin/internal/middleware"
-	"GoGin/internal/repository/mysql"
-	"GoGin/internal/services"
 	"GoGin/internal/util/jwt_util"
 	"log"
 
@@ -29,8 +29,8 @@ func main() {
 	userService := services.NewUserService(userRepo, jwtUtil)
 	courseService := services.NewCourseService(courseRepo)
 	// 处理器层依赖
-	userHandler := handlers.NewUserHandler(userService)
-	courseHandler := handlers.NewCourseHandler(courseService)
+	userHandler := handlers2.NewUserHandler(userService)
+	courseHandler := handlers2.NewCourseHandler(courseService)
 	//创建中间件
 	jwtMiddleware := middleware.NewJWTMiddleware(jwtUtil)
 

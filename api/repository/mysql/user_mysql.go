@@ -1,8 +1,8 @@
 package mysql
 
 import (
+	"GoGin/api/repository"
 	"GoGin/internal/model"
-	"GoGin/internal/repository"
 	"errors"
 	"log"
 
