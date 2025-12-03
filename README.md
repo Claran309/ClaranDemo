@@ -25,7 +25,7 @@
 ### 架构设计
 - 面向接口编程
 - 依赖注入
-- 分层架构（Handler → Service → Repository）
+- 分层架构（Handler → Service → Dao）
 
 ### 开发工具
 - Go Modules - 依赖管理

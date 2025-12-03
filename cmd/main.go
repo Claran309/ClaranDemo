@@ -128,4 +128,24 @@ func main() {
 “/enrollment”:
 	Header:
 		Authorization : Bearer <Token>
+
+==================="/to-do"======================
+"/create"
+	Header:
+		Authorization : Bearer <Token>
+	Body:
+		title
+		description
+
+"/delete"
+	Header:
+		Authorization : Bearer <Token>
+	Body:
+		todo_id
+
+"/finish"
+	Header:
+		Authorization : Bearer <Token>
+	Body:
+		todo_id
 */
