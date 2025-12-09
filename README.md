@@ -8,6 +8,8 @@
 
 ## **[API测试文档](https://s.apifox.cn/f9fc1e2c-28c6-4f97-97a9-957a088ac638)**
 
+## [更新日志](https://www.claran-blog.work/2025/11/04/Go-Demo%EF%BC%9A%E7%94%A8%E6%88%B7%E6%B3%A8%E5%86%8C%E4%B8%8E%E7%99%BB%E5%BD%95%E7%B3%BB%E7%BB%9F/)
+
 ## Future plans：
 - 建立合理的错误抛出和处理机制
 - 完善信息修改接口系列（PUT）：
