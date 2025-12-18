@@ -81,8 +81,8 @@ func (repo *mysqlUserRepo) SelectByUsername(username string) (*model.User, error
 	if repo.cache == nil {
 		key := fmt.Sprintf("user:username:%s", username)
 		var user model.User
-		if err := repo.cache.Get(key, &user); err != nil {
-			return nil, errors.New("get cache failed")
+		if err := repo.cache.Get(key, &user); err == nil {
+			return &user, nil
 		}
 	}
 
@@ -209,5 +209,5 @@ func (repo *mysqlUserRepo) Exists(username, email string) bool {
 }
 
 func (repo *mysqlUserRepo) GetRole(user *model.User) (string, error) {
-	return user.Username, nil
+	return user.Role, nil
 }
